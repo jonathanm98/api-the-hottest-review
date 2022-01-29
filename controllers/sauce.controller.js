@@ -1,22 +1,26 @@
 const SauceModel = require("../models/sauce.model");
 const ObjectId = require("mongoose").Types.ObjectId;
-const multer = require("multer");
 
 module.exports.addSauce = async (req, res) => {
-  let { userId, name, manufacturer, description, mainPepper, heat } = req.body;
-  let imageUrl = "images/" + req.file.filename;
+  let sauce = JSON.parse(req.body.sauce);
+  console.log(sauce.name);
+  console.log(1);
+  let imageUrl = "../../../front/images" + req.file.filename;
+  console.log(2);
   try {
     await SauceModel.create({
-      userId,
-      name,
-      manufacturer,
-      imageUrl,
-      description,
-      mainPepper,
-      heat,
+      userId: sauce.userId,
+      name: sauce.name,
+      manufacturer: sauce.manufacturer,
+      imageUrl: imageUrl,
+      description: sauce.description,
+      mainPepper: sauce.mainPepper,
+      heat: sauce.heat,
     });
-    res.status(201).send({ message: "La sauce à bien été ajoutée" });
+    console.log(3);
+    return res.status(201).send({ message: "La sauce à bien été ajoutée" });
   } catch (err) {
+    console.log(4);
     res.status(400).send({ error: err });
   }
 };
@@ -103,6 +107,7 @@ module.exports.likeSauce = async (req, res) => {
         req.params.id,
         {
           $pull: { usersLiked: user },
+          $pull: { usersDisliked: user },
           $inc: { likes: -1 },
         },
         { new: true },
