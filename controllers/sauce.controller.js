@@ -31,9 +31,6 @@ module.exports.getAllSauces = async (req, res) => {
 };
 
 module.exports.getSauce = async (req, res) => {
-  if (!ObjectId.isValid(req.params.id))
-    return res.status(400).send("ID inconnu " + req.params.id);
-
   SauceModel.findById(req.params.id, (err, docs) => {
     if (!err) res.send(docs);
     else console.log("ID inconnu " + err);
@@ -53,7 +50,6 @@ module.exports.updateSauce = (req, res) => {
           manufacturer: req.body.manufacturer,
           description: req.body.description,
           mainPepper: req.body.mainPepper,
-          imageUrl: req.body.imageUrl,
           heat: req.body.heat,
         },
       },
@@ -84,7 +80,6 @@ module.exports.likeSauce = async (req, res) => {
     return res.status(400).send("ID inconnu : " + req.params.id);
 
   let user = req.body.userId;
-  console.log(req.body);
   try {
     if (req.body.like === 1) {
       console.log("like");
@@ -102,22 +97,7 @@ module.exports.likeSauce = async (req, res) => {
         }
       );
     } else if (req.body.like === 0) {
-      console.log("unlike");
-      await SauceModel.findByIdAndUpdate(
-        req.params.id,
-        {
-          $pull: { usersLiked: user },
-          $pull: { usersDisliked: user },
-          $inc: { likes: -1 },
-        },
-        { new: true },
-        (err, docs) => {
-          console.log("2");
-          if (err) return res.status(500).send({ message: err });
-          if (!err)
-            return res.status(200).send({ message: "Vous n'aimez plus" });
-        }
-      );
+      SauceModel.updateOne();
     } else if (req.body.like === -1) {
       console.log("dislike");
       await SauceModel.findByIdAndUpdate(

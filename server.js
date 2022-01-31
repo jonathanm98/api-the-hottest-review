@@ -11,8 +11,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/api/auth", cors(), authRoutes);
-app.use("/api/sauces", cors(), sauceRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/sauces", sauceRoutes);
 
 app.listen(process.env.PORT, () =>
   console.log("Serveur lancé sur le port " + process.env.PORT)
