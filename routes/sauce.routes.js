@@ -27,7 +27,9 @@ router.post("/:id/like", sauceController.likeSauce);
 //Routes GET
 router.get("/", sauceController.getAllSauces);
 router.get("/:id", sauceController.getSauce);
-router.put("/:id", sauceController.updateSauce);
+
+//Routes PUT
+router.put("/:id", upload.single("image"), sauceController.updateSauce);
 
 //Route DELETE
 router.delete("/:id", sauceController.deleteSauce);

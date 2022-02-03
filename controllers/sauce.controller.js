@@ -5,7 +5,7 @@ module.exports.addSauce = async (req, res) => {
   let sauce = JSON.parse(req.body.sauce);
   console.log(sauce.name);
   console.log(1);
-  let imageUrl = "../../../front/images" + req.file.filename;
+  let imageUrl = "./images/" + req.file.filename;
   console.log(2);
   try {
     await SauceModel.create({
@@ -40,6 +40,7 @@ module.exports.getSauce = async (req, res) => {
 module.exports.updateSauce = (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send("ID inconnu " + req.params.id);
+  console.log(req.file.filename);
 
   try {
     SauceModel.findOneAndUpdate(
@@ -48,6 +49,7 @@ module.exports.updateSauce = (req, res) => {
         $set: {
           name: req.body.name,
           manufacturer: req.body.manufacturer,
+          imageUrl: "./images/" + req.file.filename,
           description: req.body.description,
           mainPepper: req.body.mainPepper,
           heat: req.body.heat,
