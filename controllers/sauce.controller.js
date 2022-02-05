@@ -3,10 +3,7 @@ const ObjectId = require("mongoose").Types.ObjectId;
 
 module.exports.addSauce = async (req, res) => {
   let sauce = JSON.parse(req.body.sauce);
-  console.log(sauce.name);
-  console.log(1);
   let imageUrl = "./images/" + req.file.filename;
-  console.log(2);
   try {
     await SauceModel.create({
       userId: sauce.userId,
@@ -17,11 +14,9 @@ module.exports.addSauce = async (req, res) => {
       mainPepper: sauce.mainPepper,
       heat: sauce.heat,
     });
-    console.log(3);
     return res.status(201).send({ message: "La sauce à bien été ajoutée" });
   } catch (err) {
-    console.log(4);
-    res.status(400).send({ error: err });
+    return res.status(400).send({ error: err });
   }
 };
 
@@ -33,35 +28,31 @@ module.exports.getAllSauces = async (req, res) => {
 module.exports.getSauce = async (req, res) => {
   SauceModel.findById(req.params.id, (err, docs) => {
     if (!err) res.send(docs);
-    else console.log("ID inconnu " + err);
   });
 };
 
-module.exports.updateSauce = (req, res) => {
+module.exports.updateSauce = async (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send("ID inconnu " + req.params.id);
-  console.log(req.file.filename);
 
   try {
-    SauceModel.findOneAndUpdate(
-      { _id: req.params.id },
-      {
-        $set: {
-          name: req.body.name,
-          manufacturer: req.body.manufacturer,
-          imageUrl: "./images/" + req.file.filename,
-          description: req.body.description,
-          mainPepper: req.body.mainPepper,
-          heat: req.body.heat,
-        },
-      },
-      { new: true, upsert: true, setDefaultsOnInsert: true },
-      (err, docs) => {
-        if (!err) return res.send(docs);
-        if (err) return res.status(400).send({ message: err });
-      }
-    );
+    let sauceToUpdate = await SauceModel.find({ _id: req.params.id });
+    console.log(req.body.name);
+
+    console.log(sauceToUpdate[0]);
+    sauceToUpdate[0].name = req.body.name;
+    sauceToUpdate[0].manufacturer = req.body.manufacturer;
+    sauceToUpdate[0].description = req.body.description;
+    sauceToUpdate[0].mainPepper = req.body.mainPepper;
+    sauceToUpdate[0].heat = req.body.heat;
+    if (req.file) sauceToUpdate[0].imageUrl = "./images/" + req.file.filename;
+    console.log(sauceToUpdate[0]);
+
+    await sauceToUpdate[0].save();
+    console.log("mise à jour effectuée");
+    return res.status(201).send({ message: "mise à jour effectuée" });
   } catch (err) {
+    console.log(err.message);
     return res.status(400).send({ message: err });
   }
 };
@@ -81,11 +72,10 @@ module.exports.likeSauce = async (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send("ID inconnu : " + req.params.id);
 
-  let user = req.body.userId;
   try {
+    let user = req.body.userId;
     if (req.body.like === 1) {
-      console.log("like");
-      await SauceModel.findByIdAndUpdate(
+      SauceModel.findByIdAndUpdate(
         req.params.id,
         {
           $addToSet: { usersLiked: user },
@@ -93,32 +83,53 @@ module.exports.likeSauce = async (req, res) => {
         },
         { new: true },
         (err, docs) => {
-          console.log("1");
-          if (err) return res.status(500).json({ message: err });
           if (!err) return res.status(200).send({ message: "Vous aimez" });
         }
       );
-    } else if (req.body.like === 0) {
-      SauceModel.updateOne();
-    } else if (req.body.like === -1) {
-      console.log("dislike");
-      await SauceModel.findByIdAndUpdate(
+    }
+    if (req.body.like === -1) {
+      SauceModel.findByIdAndUpdate(
         req.params.id,
         {
-          $addToSet: { usersDisiked: user },
+          $addToSet: { usersDisliked: user },
           $inc: { dislikes: 1 },
         },
         { new: true },
         (err, docs) => {
-          console.log("3");
-          if (err) return res.status(500).send({ message: err });
           if (!err)
             return res.status(200).send({ message: "Vous n'aimez pas" });
         }
       );
     }
+    if (req.body.like === 0) {
+      let sauceToUpdate = await SauceModel.find({ _id: req.params.id });
+
+      if (
+        sauceToUpdate[0].usersLiked.find(() => {
+          user;
+          return true;
+        })
+      ) {
+        sauceToUpdate[0].usersLiked.splice(user, 1);
+        sauceToUpdate[0].likes--;
+        console.log(sauceToUpdate[0]);
+        await sauceToUpdate[0].save();
+        return res.status(200).send({ message: "Like supprimé" });
+      }
+      if (
+        sauceToUpdate[0].usersDisliked.find(() => {
+          user;
+          return true;
+        })
+      ) {
+        sauceToUpdate[0].usersDisliked.splice(user, 1);
+        sauceToUpdate[0].dislikes--;
+        console.log(sauceToUpdate[0]);
+        await sauceToUpdate[0].save();
+        return res.status(200).send({ message: "Dislike supprimé" });
+      }
+    }
   } catch (err) {
-    console.log(err);
-    // return res.status(400).send({ message: err });
+    return res.status(400).send({ message: err.message });
   }
 };

@@ -11,7 +11,9 @@ module.exports.signUp = async (req, res) => {
   console.log(req.body);
   const { email, password } = req.body;
   try {
-    const user = await UserModel.create({ email, password });
+    await UserModel.create({ email, password });
+    console.log(`Utilisateur ${email} créer`);
+
     res
       .status(201)
       .send({ message: "Le compte à bien été crée, veuillez vous connecter" });
@@ -28,6 +30,7 @@ module.exports.signIn = async (req, res) => {
   try {
     const user = await UserModel.login(email, password);
     const token = createToken(user._id);
+    console.log(`Utilisateur ${email} connecté`);
     res.status(200).json({ token: token, userId: user._id });
   } catch (err) {
     console.log(err);
