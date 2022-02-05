@@ -18,6 +18,7 @@ module.exports.signUp = async (req, res) => {
       .status(201)
       .send({ message: "Le compte à bien été crée, veuillez vous connecter" });
   } catch (err) {
+    console.log(err.message);
     res
       .status(400)
       .send({ message: "Vous possedez déjà un compte avec cet email" });
@@ -33,7 +34,7 @@ module.exports.signIn = async (req, res) => {
     console.log(`Utilisateur ${email} connecté`);
     res.status(200).json({ token: token, userId: user._id });
   } catch (err) {
-    console.log(err);
+    console.log(err.message);
     res.status(400).json({ err });
   }
 };

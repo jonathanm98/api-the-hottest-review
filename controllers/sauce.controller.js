@@ -37,7 +37,7 @@ module.exports.updateSauce = async (req, res) => {
 
   try {
     let sauceToUpdate = await SauceModel.find({ _id: req.params.id });
-    console.log(req.body.name);
+    console.log(req.body);
 
     console.log(sauceToUpdate[0]);
     sauceToUpdate[0].name = req.body.name;
