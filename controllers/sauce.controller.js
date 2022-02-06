@@ -34,25 +34,31 @@ module.exports.getSauce = async (req, res) => {
 module.exports.updateSauce = async (req, res) => {
   if (!ObjectId.isValid(req.params.id))
     return res.status(400).send("ID inconnu " + req.params.id);
-
   try {
-    console.log(req.body);
-    res.status(200).send({ message: "ah" });
-    return;
+    let sauceToUpdate = await SauceModel.find({ _id: req.params.id });
 
-    // let sauceToUpdate = await SauceModel.find({ _id: req.params.id });
+    if (req.file) {
+      console.log(req.file.filename);
+      sauceToUpdate[0].imageUrl = "./images/" + req.file.filename;
+      sauceToUpdate[0].name = JSON.parse(req.body.sauce).name;
+      sauceToUpdate[0].manufacturer = JSON.parse(req.body.sauce).manufacturer;
+      sauceToUpdate[0].description = JSON.parse(req.body.sauce).description;
+      sauceToUpdate[0].mainPepper = JSON.parse(req.body.sauce).mainPepper;
+      sauceToUpdate[0].heat = JSON.parse(req.body.sauce).heat;
+    } else {
+      console.log(req.body);
+      sauceToUpdate[0].name = req.body.name;
+      sauceToUpdate[0].manufacturer = req.body.manufacturer;
+      sauceToUpdate[0].description = req.body.description;
+      sauceToUpdate[0].mainPepper = req.body.mainPepper;
+      sauceToUpdate[0].heat = req.body.heat;
+    }
 
-    // if (req.file) sauceToUpdate.imageUrl = "./images/" + req.file.filename;
-    // sauceToUpdate[0].name = req.body.name;
-    // sauceToUpdate[0].manufacturer = req.body.manufacturer;
-    // sauceToUpdate[0].description = req.body.description;
-    // sauceToUpdate[0].mainPepper = req.body.mainPepper;
-    // sauceToUpdate[0].heat = req.body.heat;
+    await sauceToUpdate[0].save();
 
-    // await sauceToUpdate[0].save();
-
-    // return res.status(201).send({ message: "misa à jour effectuée" });
+    return res.status(201).send({ message: "misa à jour effectuée" });
   } catch (err) {
+    console.log(err.message);
     return res.status(400).send({ message: err });
   }
 };
