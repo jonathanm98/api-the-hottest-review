@@ -29,7 +29,7 @@ router.get("/", sauceController.getAllSauces);
 router.get("/:id", sauceController.getSauce);
 
 //Routes PUT
-router.put("/:id", upload.single("image"), sauceController.updateSauce);
+router.put("/:id", sauceController.updateSauce);
 
 //Route DELETE
 router.delete("/:id", sauceController.deleteSauce);

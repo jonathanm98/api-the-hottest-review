@@ -36,23 +36,23 @@ module.exports.updateSauce = async (req, res) => {
     return res.status(400).send("ID inconnu " + req.params.id);
 
   try {
-    let sauceToUpdate = await SauceModel.find({ _id: req.params.id });
     console.log(req.body);
+    res.status(200).send({ message: "ah" });
+    return;
 
-    console.log(sauceToUpdate[0]);
-    sauceToUpdate[0].name = req.body.name;
-    sauceToUpdate[0].manufacturer = req.body.manufacturer;
-    sauceToUpdate[0].description = req.body.description;
-    sauceToUpdate[0].mainPepper = req.body.mainPepper;
-    sauceToUpdate[0].heat = req.body.heat;
-    if (req.file) sauceToUpdate[0].imageUrl = "./images/" + req.file.filename;
-    console.log(sauceToUpdate[0]);
+    // let sauceToUpdate = await SauceModel.find({ _id: req.params.id });
 
-    await sauceToUpdate[0].save();
-    console.log("mise à jour effectuée");
-    return res.status(201).send({ message: "mise à jour effectuée" });
+    // if (req.file) sauceToUpdate.imageUrl = "./images/" + req.file.filename;
+    // sauceToUpdate[0].name = req.body.name;
+    // sauceToUpdate[0].manufacturer = req.body.manufacturer;
+    // sauceToUpdate[0].description = req.body.description;
+    // sauceToUpdate[0].mainPepper = req.body.mainPepper;
+    // sauceToUpdate[0].heat = req.body.heat;
+
+    // await sauceToUpdate[0].save();
+
+    // return res.status(201).send({ message: "misa à jour effectuée" });
   } catch (err) {
-    console.log(err.message);
     return res.status(400).send({ message: err });
   }
 };
