@@ -9,7 +9,6 @@ const storage = multer.diskStorage({
     callback(null, __dirname + "../../../front/images");
   },
   filename: (req, file, callback) => {
-    console.log(file);
     callback(
       null,
       Date.now() +
@@ -18,7 +17,7 @@ const storage = multer.diskStorage({
     );
   },
 });
-const upload = multer({ storage: storage });
+const upload = multer({ fileSize: 2097152, storage: storage });
 //Routes PUT
 router.put("/:id", upload.single("image"), sauceController.updateSauce);
 
