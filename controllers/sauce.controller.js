@@ -38,7 +38,6 @@ module.exports.updateSauce = async (req, res) => {
     let sauceToUpdate = await SauceModel.find({ _id: req.params.id });
 
     if (req.file) {
-      console.log(req.file.filename);
       sauceToUpdate[0].imageUrl = "./images/" + req.file.filename;
       sauceToUpdate[0].name = JSON.parse(req.body.sauce).name;
       sauceToUpdate[0].manufacturer = JSON.parse(req.body.sauce).manufacturer;
@@ -46,7 +45,6 @@ module.exports.updateSauce = async (req, res) => {
       sauceToUpdate[0].mainPepper = JSON.parse(req.body.sauce).mainPepper;
       sauceToUpdate[0].heat = JSON.parse(req.body.sauce).heat;
     } else {
-      console.log(req.body);
       sauceToUpdate[0].name = req.body.name;
       sauceToUpdate[0].manufacturer = req.body.manufacturer;
       sauceToUpdate[0].description = req.body.description;

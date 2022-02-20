@@ -11,7 +11,9 @@ const storage = multer.diskStorage({
   filename: (req, file, callback) => {
     callback(
       null,
-      Date.now() + path.basename(file.originalname).replace(/[^a-zA-Z]/g, "")
+      Date.now() +
+        path.basename(file.originalname).replace(/[^a-zA-Z]/g, "") +
+        ".png"
     );
   },
 });
