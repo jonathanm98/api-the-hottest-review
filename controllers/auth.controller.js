@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 // Fonction d'authentification qui crée un token signé qui expire sous 24h
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.TOKEN, {
-    expiresIn: 1 * 24 * 60 * 60 * 1000,
+    expiresIn: "24h",
   });
 };
 
