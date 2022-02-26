@@ -1,11 +1,13 @@
 const SauceModel = require("../models/sauce.model");
+const fs = require("fs");
 
 // Fonction pour le création de nouvelles sauces
 module.exports.addSauce = async (req, res) => {
+  console.log(req.body);
   // On récupère les infos saisies par l'utilisateur
   let sauce = JSON.parse(req.body.sauce);
   // On définis l'URL de l'image
-  let imageUrl = "./images/" + req.file.filename;
+  let imageUrl = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`
   try {
     // On crée notre sauce
     await SauceModel.create({
@@ -76,15 +78,25 @@ module.exports.updateSauce = async (req, res) => {
 
 // Fonction qui supprime la sauce ciblée par l'utilisateur
 module.exports.deleteSauce = async (req, res) => {
-  try {
-    await SauceModel.deleteOne({ _id: req.params.id }).exec();
-    res.status(200).send({ message: "Supression effectuée" });
-  } catch (err) {
-    res.status(401).send({
-      message:
-        "Vous ne pouvez pas supprimer une sauce que vous n'avez pas créer",
+  SauceModel.findOne({ _id: req.params.id })
+    .then((sauce) => {
+      const filename = sauce.imageUrl.split("/images/")[1];
+      fs.unlink(`./images/${filename}`, () => {
+        try {
+          SauceModel.deleteOne({ _id: req.params.id }).exec();
+          res.status(200).send({ message: "Supression effectuée" });
+        } catch (err) {
+          res.status(401).send({
+            message:
+              "Vous ne pouvez pas supprimer une sauce que vous n'avez pas créer",
+          });
+        }
+      });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).send({ err });
     });
-  }
 };
 
 module.exports.likeSauce = async (req, res) => {
