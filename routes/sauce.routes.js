@@ -23,17 +23,17 @@ const storage = multer.diskStorage({
 const upload = multer({ fileSize: 2097152, storage: storage });
 
 //Routes PUT
-router.put("/:id", auth, upload.single("image"), sauceController.updateSauce);
+router.put("/:id", auth.authEdit, upload.single("image"), sauceController.updateSauce);
 
 //Routes POST
-router.post("/", auth, upload.single("image"), sauceController.addSauce);
-router.post("/:id/like", auth, sauceController.likeSauce);
+router.post("/", auth.auth, upload.single("image"), sauceController.addSauce);
+router.post("/:id/like", auth.auth, sauceController.likeSauce);
 
 //Routes GET
-router.get("/", auth, sauceController.getAllSauces);
-router.get("/:id", auth, sauceController.getSauce);
+router.get("/", auth.auth, sauceController.getAllSauces);
+router.get("/:id", auth.auth, sauceController.getSauce);
 
 //Route DELETE
-router.delete("/:id", auth, sauceController.deleteSauce);
+router.delete("/:id", auth.authEdit, sauceController.deleteSauce);
 
 module.exports = router;

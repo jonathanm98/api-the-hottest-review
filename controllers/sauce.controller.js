@@ -3,11 +3,12 @@ const fs = require("fs");
 
 // Fonction pour le création de nouvelles sauces
 module.exports.addSauce = async (req, res) => {
-  console.log(req.body);
   // On récupère les infos saisies par l'utilisateur
   let sauce = JSON.parse(req.body.sauce);
   // On définis l'URL de l'image
-  let imageUrl = `${req.protocol}://${req.get("host")}/images/${req.file.filename}`
+  let imageUrl = `${req.protocol}://${req.get("host")}/images/${
+    req.file.filename
+  }`;
   try {
     // On crée notre sauce
     await SauceModel.create({
@@ -41,34 +42,46 @@ module.exports.getSauce = (req, res) => {
 };
 
 module.exports.updateSauce = async (req, res) => {
+  const saveSauce = async (sauce) => {
+    sauce.save();
+  };
+
   try {
     // On identifie la sauce ciblée par l'utilisateur
     let sauceToUpdate = await SauceModel.find({ _id: req.params.id });
-
     // La requette est différente si elle contiens un fichier donc on fait un if else
     // pour traiter l'image si elle existe dans la requette
     if (req.file) {
-      sauceToUpdate[0].imageUrl = "./images/" + req.file.filename;
-      sauceToUpdate[0].name = JSON.parse(req.body.sauce).name;
-      sauceToUpdate[0].manufacturer = JSON.parse(req.body.sauce).manufacturer;
-      sauceToUpdate[0].description = JSON.parse(req.body.sauce).description;
-      sauceToUpdate[0].mainPepper = JSON.parse(req.body.sauce).mainPepper;
-      sauceToUpdate[0].heat = JSON.parse(req.body.sauce).heat;
+      const data = JSON.parse(req.body.sauce);
+      const filename = sauceToUpdate[0].imageUrl.split("/images/")[1];
+      // On supprime l'ancienne image du dossier local et on execute la modification
+      fs.unlink(`./images/${filename}`, () => {
+        sauceToUpdate[0].imageUrl = `${req.protocol}://${req.get(
+          "host"
+        )}/images/${req.file.filename}`;
+        console.log(data);
+        sauceToUpdate[0].name = data.name;
+        sauceToUpdate[0].manufacturer = data.manufacturer;
+        sauceToUpdate[0].description = data.description;
+        sauceToUpdate[0].mainPepper = data.mainPepper;
+        sauceToUpdate[0].heat = data.heat;
+        // On sauvegarde notre sauce dans la db
+        saveSauce(sauceToUpdate[0]);
+      });
     } else {
       sauceToUpdate[0].name = req.body.name;
       sauceToUpdate[0].manufacturer = req.body.manufacturer;
       sauceToUpdate[0].description = req.body.description;
       sauceToUpdate[0].mainPepper = req.body.mainPepper;
       sauceToUpdate[0].heat = req.body.heat;
+      // On sauvegarde notre sauce dans la db
+      saveSauce(sauceToUpdate[0]);
     }
-
-    // On sauvegarde notre sauce dans la db
-    await sauceToUpdate[0].save();
 
     // Et on renvoie une message de succes à l'utilisateur
     return res.status(201).send({ message: "Mise à jour effectuée" });
   } catch (err) {
-    console.log(err.message);
+    console.log(err);
     return res.status(401).send({
       message:
         "Vous ne pouvez pas modifier une sauce que vous n'avez pas créer",
